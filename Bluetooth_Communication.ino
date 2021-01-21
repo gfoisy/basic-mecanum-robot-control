@@ -20,14 +20,14 @@ void interperetBluetooth(){
 
 //return the direction vector and scaled intensity
 
-  command = Serial.read();
+  command = Serial1.read();
   //if I create an analogue remote or app, this switch table can go away
   switch(command){ 
       case 'F':  //Forward
         robotVector.set_velocityAngle(0); 
         break;
       case 'B':  //Back
-        robotVector.set_velocityAngle(-pi); 
+        robotVector.set_velocityAngle(pi); 
         break;
       case 'L':  //Left
         robotVector.set_velocityAngle(1.5*pi);  
@@ -76,6 +76,5 @@ void interperetBluetooth(){
             }
         }    
      } //end of switch
-  
-
+    
 }

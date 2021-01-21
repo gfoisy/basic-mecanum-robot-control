@@ -4,6 +4,7 @@
 #include <AccelStepper.h>  //https://www.airspayce.com/mikem/arduino/AccelStepper/
 
 float Aspeed, Bspeed, Cspeed, Dspeed;
+int currentLimit;
 
 //   motorlayout
 //    FRONT
@@ -21,44 +22,78 @@ float Aspeed, Bspeed, Cspeed, Dspeed;
 #define in2A 25
 #define in3A 27
 #define in4A 29
+#define enAA 2
+#define enBA 3
 
 #define in1B 31
 #define in2B 33
 #define in3B 35
 #define in4B 37
+#define enAB 4
+#define enBB 5
 
 #define in1C 22
 #define in2C 24
 #define in3C 26
 #define in4C 28
+#define enAC 6
+#define enBC 7
 
 #define in1D 30
 #define in2D 32
 #define in3D 34
 #define in4D 36
+#define enAD 8
+#define enBD 9
 
-float maxSpeed=50.0;
 
 //constructing the stepper objects
  AccelStepper stepperA(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
  AccelStepper stepperB(AccelStepper::FULL4WIRE, in1B, in2B, in3B, in4B);
  AccelStepper stepperC(AccelStepper::FULL4WIRE, in1C, in2C, in3C, in4C);
  AccelStepper stepperD(AccelStepper::FULL4WIRE, in1D, in2D, in3D, in4D);
-
+ float maxSpeed=1500;
+  
 /////////////////////////////////////////////////////////////////
 void motorSetup(){ 
   stepperA.setMaxSpeed(maxSpeed);  //in steps per seccond //"High" steps/second is 2000 to 3000--mecatronics uses 3000 setps per second--NOT RPM, and that requires very fast waveforms and fast magnetic field changes, so the stepper driver AND PROCESSOR SPEED is critical for high speeds. 
-  stepperA.setAcceleration(100.0);
   
   stepperB.setMaxSpeed(maxSpeed);  //in steps per seccond
-  stepperB.setAcceleration(100.0);
 
   stepperC.setMaxSpeed(maxSpeed);  //in steps per seccond
-  stepperC.setAcceleration(100.0);
 
   stepperD.setMaxSpeed(maxSpeed);  //in steps per seccond
-  stepperD.setAcceleration(100.0);
+
+  currentLimit=200;                // 1-255; setting up the pwm to make the enable pins output less power throught eh driver, hopefully lowering the temps.
+  //TEST THIS AT 0 TO SEE IF IT HAS AN EFFECT
+
+//for (int i=2; i<10;i++){
+//  pinMode(i, OUTPUT);
+//}
+
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  
+  analogWrite(enAA,currentLimit);
+  analogWrite(enBA,currentLimit);
+  analogWrite(enAB,currentLimit);
+  analogWrite(enBB,currentLimit);
+  analogWrite(enAC,currentLimit);
+  analogWrite(enBC,currentLimit);
+  analogWrite(enAD,currentLimit);
+  analogWrite(enBD,currentLimit);
+
+
+
+
 }
+
 
 
 
@@ -98,11 +133,11 @@ void calculateStepperSpeeds(){
  */
 
 void actuateSteppers(){
-  //set positions to zero -- 
-  stepperA.setCurrentPosition(0); //it also zeros the current motor speed
-  stepperB.setCurrentPosition(0);
-  stepperC.setCurrentPosition(0);
-  stepperD.setCurrentPosition(0);
+//  //set positions to zero -- 
+//  stepperA.setCurrentPosition(0); //it also zeros the current motor speed
+//  stepperB.setCurrentPosition(0);
+//  stepperC.setCurrentPosition(0);
+//  stepperD.setCurrentPosition(0);
   
   //de-zeroing the motor speed. 
   stepperA.setSpeed(Aspeed); //this may not be able to go negative...
@@ -113,10 +148,10 @@ void actuateSteppers(){
   
   //set positions to positive or negative values based on the angle--is this nessisary, speeds are already negated
   // these values hsould be higher than the steppers can travel in one loop
-  stepperA.move(1000);   //documentation says to call setspeed after move or moveTo. I believe this code takes care of that, but it would be best to keep it in mind
-  stepperB.move(1000);
-  stepperC.move(1000);
-  stepperD.move(1000);
+//  stepperA.move(1000);   //documentation says to call setspeed after move or moveTo. I believe this code takes care of that, but it would be best to keep it in mind
+//  stepperB.move(1000);
+//  stepperC.move(1000);
+//  stepperD.move(1000);
   
 //for moving steppers
 //  runSpeedToPosition?
@@ -127,5 +162,6 @@ void actuateSteppers(){
   stepperB.runSpeed();
   stepperC.runSpeed();
   stepperD.runSpeed();
+  Serial.println(Aspeed);
   
 }

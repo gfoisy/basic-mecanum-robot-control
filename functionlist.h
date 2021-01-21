@@ -20,6 +20,12 @@ unsigned long time1, time2;
    void actuateSteppers();
 
 
+// debug
+   void bluetoothDebug();
+   void motorsDebug();
+   void miscDebug();
+
+
 
 class directionVector{
   public:
@@ -34,11 +40,13 @@ class directionVector{
 
     
   private:  
-   float _velocityAngle;
-   float _rotationAngle;
-   float _intensity;
+   float _velocityAngle=0;  //=0? should set default values here or somewhere else?
+   float _rotationAngle=0;
+   float _intensity=0;
    
  };
+
+
 
 // void set_velocityAngle(float angle);{
 //     _velocityAngle=angle;

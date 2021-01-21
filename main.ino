@@ -10,12 +10,14 @@ void setup() {
 }
 
 void loop() {
+//Serial.println(Serial1.available());
 
+//if (Serial1.available()>0)
+//  {
+//  interperetBluetooth();     //takes the bluetooth chars and maps them to a unit velocity vector and intensity in class directionVector
+//  }                          //else --maybe decelerate or something if disconnected.
 
-if (Serial1.available()>0)
-  {
-  interperetBluetooth();     //takes the bluetooth chars and maps them to a unit velocity vector and intensity in class directionVector
-  }                          //else --maybe decelerate or something if disconnected.
+bluetoothDebug();
 
 calculateStepperSpeeds();    //With the robot velocity's direction, rotation, and intensity , calculate and set the direction and speed for the stepper motors//
 
