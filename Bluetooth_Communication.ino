@@ -21,8 +21,8 @@ void interperetBluetooth(){
 //return the direction vector and scaled intensity
 
   command = Serial.read();
-  //if I create an analogue remote app or sth, this switch table can be gotten rid of
-  switch(command){ //unused commands 'W' 'w' 'U' 'u' 
+  //if I create an analogue remote or app, this switch table can go away
+  switch(command){ 
       case 'F':  //Forward
         robotVector.set_velocityAngle(0); 
         break;
@@ -37,6 +37,7 @@ void interperetBluetooth(){
         break;
       case 'S':  //Stop
         robotVector.set_intensity(0.0); 
+        // DOES THIS FIRE WHEN NO InPUT IS SELECTED?        
         break;
       case 'I':  //FR 
         robotVector.set_velocityAngle(.25*pi);
@@ -52,7 +53,16 @@ void interperetBluetooth(){
         break;
       case 'D':  //Everything OFF
         robotVector.set_intensity(0.0); 
-        break;        
+        robotVector.set_rotationAngle(0);
+        break;     
+      case 'W': // rotate left
+         robotVector.set_rotationAngle(pi/2);
+      case 'w': // stop rotating left
+          robotVector.set_rotationAngle(0);
+      case 'U': // rotate rigth
+         robotVector.set_rotationAngle(pi/2);
+      case 'u': // stop rotating right
+          robotVector.set_rotationAngle(0);
       default:  //Get velocity
         if(command=='q'){
           robotVector.set_intensity(1.0);  //Full velocity
