@@ -4,6 +4,7 @@
 #define pi 3.14159
 
 unsigned long time1, time2;
+bool motorsEnabled;
 
 
 // Battery monitor

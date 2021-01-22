@@ -21,6 +21,7 @@ void interperetBluetooth(){
 //return the direction vector and scaled intensity
 
   command = Serial1.read();
+//  Serial.print("command:");Serial.println(command);
   //if I create an analogue remote or app, this switch table can go away
   switch(command){ 
       case 'F':  //Forward
@@ -35,9 +36,8 @@ void interperetBluetooth(){
       case 'R':  //Right
         robotVector.set_velocityAngle(.5*pi); 
         break;
-      case 'S':  //Stop
-        robotVector.set_intensity(0.0); 
-        // DOES THIS FIRE WHEN NO InPUT IS SELECTED?        
+      case 'S':  //Stop -- FIRES IF NO INPUT from bluetooth
+                 // used later down
         break;
       case 'I':  //FR 
         robotVector.set_velocityAngle(.25*pi);
@@ -71,10 +71,16 @@ void interperetBluetooth(){
           //Chars '0' - '9' have an integer equivalence of 48 - 57, accordingly.
            if((command >= 48) && (command <= 57)){
              //Subtracting 48 changes the range from 48-57 to 0-9.
-             //dividing by 9 changes the range to 0-1.
-             robotVector.set_intensity((command - 48)/9);      
+             //dividing by 9changes the range to 0-1.
+             robotVector.set_intensity(((float)command - 48)/9);  
             }
         }    
      } //end of switch
+
+     motorsEnabled=true;
+     if(command=='S'||command=='D'){
+      motorsEnabled=false;
+     }
+    
     
 }

@@ -6,6 +6,7 @@
 float Aspeed, Bspeed, Cspeed, Dspeed;
 int currentLimit;
 
+
 //   motorlayout
 //    FRONT
 //   A-----B
@@ -48,7 +49,8 @@ int currentLimit;
 
 
 //constructing the stepper objects
- AccelStepper stepperA(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
+ AccelStepper stepperA(4, in1A, in2A, in3A, in4A);  //4 or FULL4WIRE?
+ //AccelStepper stepperA(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
  AccelStepper stepperB(AccelStepper::FULL4WIRE, in1B, in2B, in3B, in4B);
  AccelStepper stepperC(AccelStepper::FULL4WIRE, in1C, in2C, in3C, in4C);
  AccelStepper stepperD(AccelStepper::FULL4WIRE, in1D, in2D, in3D, in4D);
@@ -64,37 +66,23 @@ void motorSetup(){
 
   stepperD.setMaxSpeed(maxSpeed);  //in steps per seccond
 
-  currentLimit=200;                // 1-255; setting up the pwm to make the enable pins output less power throught eh driver, hopefully lowering the temps.
-  //TEST THIS AT 0 TO SEE IF IT HAS AN EFFECT
+  currentLimit=100;                // 1-255; setting up the pwm to make the enable pins output less power throught the driver, lowering the temps.
+ 
 
-//for (int i=2; i<10;i++){
-//  pinMode(i, OUTPUT);
-//}
-
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(8, OUTPUT);
-  pinMode(9, OUTPUT);
+  for (int i=2; i<10;i++){
+    pinMode(i, OUTPUT);
+  }
   
-  analogWrite(enAA,currentLimit);
-  analogWrite(enBA,currentLimit);
-  analogWrite(enAB,currentLimit);
-  analogWrite(enBB,currentLimit);
-  analogWrite(enAC,currentLimit);
-  analogWrite(enBC,currentLimit);
-  analogWrite(enAD,currentLimit);
-  analogWrite(enBD,currentLimit);
-
-
-
+    analogWrite(enAA,currentLimit);
+    analogWrite(enBA,currentLimit);
+    analogWrite(enAB,currentLimit);
+    analogWrite(enBB,currentLimit);
+    analogWrite(enAC,currentLimit);
+    analogWrite(enBC,currentLimit);
+    analogWrite(enAD,currentLimit);
+    analogWrite(enBD,currentLimit);
 
 }
-
-
 
 
 /*
@@ -107,14 +95,6 @@ void calculateStepperSpeeds(){
   //take velocityVector and intensity and calculates speeds and directions for the motors
   //can use trig values, Apparently they are in a lookup table written in machine code, should be plenty fast
 
-
-
-  //probably works, does not include rotation
-//  Aspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.25*pi));  //will need to combine with robot's rotation speed here too
-//  Bspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.75*pi));  //alternating wheels match speed and rotation when the robot is translating and not rotating
-//  Cspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.75*pi));
-//  Dspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.25*pi));
-
   Aspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.25*pi)+robotVector.get_rotationAngle());  //calculates a speed for each stepper based on the limit set by max speed*intensity. The remainder of the equaition calculates the stepper power to achieve robot's desired direction and rotation
   Bspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.75*pi)-robotVector.get_rotationAngle());   //alternating wheels match speed and rotation when the robot is translating and not rotating
   Cspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.75*pi)+robotVector.get_rotationAngle());  //the rotation angle will adjust motor output so that rotation and translation should happen at the same time,
@@ -122,46 +102,30 @@ void calculateStepperSpeeds(){
 
   //applying the proper speeds to the steppers needs to be in actuateSteppers after cetCurrentPosition()
   
-
 }
+
+
+
 
 /*
  * With the speeds and directions calculated, this function jumps through the hoops to run them
  * it needs to be called every loop because the library can only move the motors by one step
  * 
- * how??
  */
 
 void actuateSteppers(){
-//  //set positions to zero -- 
-//  stepperA.setCurrentPosition(0); //it also zeros the current motor speed
-//  stepperB.setCurrentPosition(0);
-//  stepperC.setCurrentPosition(0);
-//  stepperD.setCurrentPosition(0);
-  
-  //de-zeroing the motor speed. 
-  stepperA.setSpeed(Aspeed); //this may not be able to go negative...
+  stepperA.setSpeed(Aspeed);
   stepperB.setSpeed(Bspeed);
   stepperC.setSpeed(Cspeed);
   stepperD.setSpeed(Dspeed);
 
-  
-  //set positions to positive or negative values based on the angle--is this nessisary, speeds are already negated
-  // these values hsould be higher than the steppers can travel in one loop
-//  stepperA.move(1000);   //documentation says to call setspeed after move or moveTo. I believe this code takes care of that, but it would be best to keep it in mind
-//  stepperB.move(1000);
-//  stepperC.move(1000);
-//  stepperD.move(1000);
-  
-//for moving steppers
-//  runSpeedToPosition?
-//  runSpeed -Poll the motor and step it if a step is due, implementing a constant speed as set by the most recent call to setSpeed(). You must call this as frequently as possible, but at least once per step interval, 
-//  run -same as runSpeed, but it has acceleration and deceleration built in
+  Serial.print("intensity here:");Serial.print(robotVector.get_intensity()); Serial.print(" Aspeed:");Serial.println(Aspeed);
 
-  stepperA.runSpeed();
+ if(motorsEnabled){
+  stepperA.runSpeed();  
   stepperB.runSpeed();
   stepperC.runSpeed();
   stepperD.runSpeed();
-  Serial.println(Aspeed);
-  
+  } 
+
 }
