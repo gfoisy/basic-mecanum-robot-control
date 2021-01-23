@@ -78,9 +78,10 @@ void interperetBluetooth(){
      } //end of switch
 
      motorsEnabled=true;
-     if(command=='S'||command=='D'){
-      motorsEnabled=false;
-     }
+     
+//     if(command=='S'||command=='D'){
+//      motorsEnabled=false;
+//     }
     
     
 }

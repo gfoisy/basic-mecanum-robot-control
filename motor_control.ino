@@ -49,29 +49,37 @@ int currentLimit;
 
 
 //constructing the stepper objects
- AccelStepper stepperA(4, in1A, in2A, in3A, in4A);  //4 or FULL4WIRE?
- //AccelStepper stepperA(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
+// AccelStepper stepperA(4, in1A, in2A, in3A, in4A);  //4 or FULL4WIRE?
+ AccelStepper stepperA(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
  AccelStepper stepperB(AccelStepper::FULL4WIRE, in1B, in2B, in3B, in4B);
  AccelStepper stepperC(AccelStepper::FULL4WIRE, in1C, in2C, in3C, in4C);
  AccelStepper stepperD(AccelStepper::FULL4WIRE, in1D, in2D, in3D, in4D);
- float maxSpeed=1500;
+
+// AccelStepper stepperA(AccelStepper::HALF4WIRE, in1A, in2A, in3A, in4A);
+// AccelStepper stepperB(AccelStepper::HALF4WIRE, in1B, in2B, in3B, in4B);
+// AccelStepper stepperC(AccelStepper::HALF4WIRE, in1C, in2C, in3C, in4C);
+// AccelStepper stepperD(AccelStepper::HALF4WIRE, in1D, in2D, in3D, in4D);
+ 
+ float maxSpeed=2000;
   
 /////////////////////////////////////////////////////////////////
 void motorSetup(){ 
-  stepperA.setMaxSpeed(maxSpeed);  //in steps per seccond //"High" steps/second is 2000 to 3000--mecatronics uses 3000 setps per second--NOT RPM, and that requires very fast waveforms and fast magnetic field changes, so the stepper driver AND PROCESSOR SPEED is critical for high speeds. 
   
+  stepperA.setMaxSpeed(maxSpeed);  //in steps per seccond //"High" steps/second is 2000 to 3000--mecatronics uses 3000 setps per second--NOT RPM, and that requires very fast waveforms and fast magnetic field changes, so the stepper driver AND PROCESSOR SPEED is critical for high speeds. 
   stepperB.setMaxSpeed(maxSpeed);  //in steps per seccond
-
   stepperC.setMaxSpeed(maxSpeed);  //in steps per seccond
-
   stepperD.setMaxSpeed(maxSpeed);  //in steps per seccond
 
-  currentLimit=100;                // 1-255; setting up the pwm to make the enable pins output less power throught the driver, lowering the temps.
+  currentLimit=250;                // 1-255; setting up the pwm to make the enable pins output less power throught the driver, lowering the temps.
  
-
-  for (int i=2; i<10;i++){
-    pinMode(i, OUTPUT);
-  }
+    pinMode(enAA,OUTPUT);
+    pinMode(enBA,OUTPUT);
+    pinMode(enAB,OUTPUT);
+    pinMode(enBB,OUTPUT);
+    pinMode(enAC,OUTPUT);
+    pinMode(enBC,OUTPUT);
+    pinMode(enAD,OUTPUT);
+    pinMode(enBD,OUTPUT);
   
     analogWrite(enAA,currentLimit);
     analogWrite(enBA,currentLimit);
@@ -101,6 +109,10 @@ void calculateStepperSpeeds(){
   Dspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.25*pi)-robotVector.get_rotationAngle());  // while staying below the motor's limits
 
   //applying the proper speeds to the steppers needs to be in actuateSteppers after cetCurrentPosition()
+  stepperA.setSpeed(1000);//Aspeed
+  stepperB.setSpeed(1000);//Bspeed
+  stepperC.setSpeed(500);//Cspeed   500 is decently strong
+  stepperD.setSpeed(250);
   
 }
 
@@ -114,15 +126,10 @@ void calculateStepperSpeeds(){
  */
 
 void actuateSteppers(){
-  stepperA.setSpeed(Aspeed);
-  stepperB.setSpeed(Bspeed);
-  stepperC.setSpeed(Cspeed);
-  stepperD.setSpeed(Dspeed);
-
-  Serial.print("intensity here:");Serial.print(robotVector.get_intensity()); Serial.print(" Aspeed:");Serial.println(Aspeed);
+//  Serial.print("intensity here:");Serial.print(robotVector.get_intensity()); Serial.print(" Bspeed:");Serial.println(Bspeed);
 
  if(motorsEnabled){
-  stepperA.runSpeed();  
+  stepperA.runSpeed();  //use run?
   stepperB.runSpeed();
   stepperC.runSpeed();
   stepperD.runSpeed();
