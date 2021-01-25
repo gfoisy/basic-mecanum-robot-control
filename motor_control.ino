@@ -4,8 +4,6 @@
 #include <AccelStepper.h>  //https://www.airspayce.com/mikem/arduino/AccelStepper/
 
 float Aspeed, Bspeed, Cspeed, Dspeed;
-int currentLimit;
-
 
 //   motorlayout
 //    FRONT
@@ -19,76 +17,47 @@ int currentLimit;
 // Wheel diameter = 120mm
 
 // setting up pins for the steppers
-#define in1A 23
-#define in2A 25
-#define in3A 27
-#define in4A 29
-#define enAA 2
-#define enBA 3
+#define stepA 22
+#define dirA 23
 
-#define in1B 31
-#define in2B 33
-#define in3B 35
-#define in4B 37
-#define enAB 4
-#define enBB 5
+#define stepB 24
+#define dirB 25
 
-#define in1C 22
-#define in2C 24
-#define in3C 26
-#define in4C 28
-#define enAC 6
-#define enBC 7
+#define stepC 26
+#define dirC 27
 
-#define in1D 30
-#define in2D 32
-#define in3D 34
-#define in4D 36
-#define enAD 8
-#define enBD 9
+#define stepD 28
+#define dirD 29
+
+#define power 52;
+
+
 
 
 //constructing the stepper objects
-// AccelStepper stepperA(4, in1A, in2A, in3A, in4A);  //4 or FULL4WIRE?
- AccelStepper stepperA(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
- AccelStepper stepperB(AccelStepper::FULL4WIRE, in1B, in2B, in3B, in4B);
- AccelStepper stepperC(AccelStepper::FULL4WIRE, in1C, in2C, in3C, in4C);
- AccelStepper stepperD(AccelStepper::FULL4WIRE, in1D, in2D, in3D, in4D);
 
-// AccelStepper stepperA(AccelStepper::HALF4WIRE, in1A, in2A, in3A, in4A);
-// AccelStepper stepperB(AccelStepper::HALF4WIRE, in1B, in2B, in3B, in4B);
-// AccelStepper stepperC(AccelStepper::HALF4WIRE, in1C, in2C, in3C, in4C);
-// AccelStepper stepperD(AccelStepper::HALF4WIRE, in1D, in2D, in3D, in4D);
+   AccelStepper stepperA( AccelStepper::DRIVER, stepA, dirA);
+   AccelStepper stepperB( AccelStepper::DRIVER, stepB, dirB);
+   AccelStepper stepperC( AccelStepper::DRIVER, stepC, dirC);
+   AccelStepper stepperD( AccelStepper::DRIVER, stepD, dirD);
  
- float maxSpeed=2000;
+   float maxSpeed=3000;
+
+// AccelStepper stepperA(4, in1A, in2A, in3A, in4A);  //4 or FULL4WIRE?
+// AccelStepper stepperA(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
+// AccelStepper stepperB(AccelStepper::FULL4WIRE, in1B, in2B, in3B, in4B);
+// AccelStepper stepperC(AccelStepper::FULL4WIRE, in1C, in2C, in3C, in4C);
+// AccelStepper stepperD(AccelStepper::FULL4WIRE, in1D, in2D, in3D, in4D);
+
   
 /////////////////////////////////////////////////////////////////
 void motorSetup(){ 
-  
+  pinMode(52, OUTPUT);
+
   stepperA.setMaxSpeed(maxSpeed);  //in steps per seccond //"High" steps/second is 2000 to 3000--mecatronics uses 3000 setps per second--NOT RPM, and that requires very fast waveforms and fast magnetic field changes, so the stepper driver AND PROCESSOR SPEED is critical for high speeds. 
   stepperB.setMaxSpeed(maxSpeed);  //in steps per seccond
   stepperC.setMaxSpeed(maxSpeed);  //in steps per seccond
   stepperD.setMaxSpeed(maxSpeed);  //in steps per seccond
-
-  currentLimit=250;                // 1-255; setting up the pwm to make the enable pins output less power throught the driver, lowering the temps.
- 
-    pinMode(enAA,OUTPUT);
-    pinMode(enBA,OUTPUT);
-    pinMode(enAB,OUTPUT);
-    pinMode(enBB,OUTPUT);
-    pinMode(enAC,OUTPUT);
-    pinMode(enBC,OUTPUT);
-    pinMode(enAD,OUTPUT);
-    pinMode(enBD,OUTPUT);
-  
-    analogWrite(enAA,currentLimit);
-    analogWrite(enBA,currentLimit);
-    analogWrite(enAB,currentLimit);
-    analogWrite(enBB,currentLimit);
-    analogWrite(enAC,currentLimit);
-    analogWrite(enBC,currentLimit);
-    analogWrite(enAD,currentLimit);
-    analogWrite(enBD,currentLimit);
 
 }
 
@@ -96,7 +65,6 @@ void motorSetup(){
 /*
  * 
  * With the velocity vector and intensity , calculate the direction and speed for the stepper motors 
- * this should take into account the time spent between bluetooths interactions and stuff
  */
 
 void calculateStepperSpeeds(){
@@ -109,11 +77,15 @@ void calculateStepperSpeeds(){
   Dspeed=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.25*pi)-robotVector.get_rotationAngle());  // while staying below the motor's limits
 
   //applying the proper speeds to the steppers needs to be in actuateSteppers after cetCurrentPosition()
-  stepperA.setSpeed(1000);//Aspeed
-  stepperB.setSpeed(1000);//Bspeed
-  stepperC.setSpeed(500);//Cspeed   500 is decently strong
-  stepperD.setSpeed(250);
-  
+  stepperA.setSpeed(Aspeed);//Aspeed
+//  stepperB.setSpeed(Bspeed);//Bspeed
+//  stepperC.setSpeed(Cspeed);//Cspeed   500 is decently strong
+//  stepperD.setSpeed(Dspeed);
+
+//  stepperA.moveTo(stepperA.currentPosition()+stepperStepsPerQuery);
+
+//  Serial.print(stepperA.currentPosition()+stepperStepsPerQuery);
+//  Serial.print("  intensity:");Serial.print(robotVector.get_intensity()); Serial.print(" Aspeed:");Serial.println(Aspeed);
 }
 
 
@@ -128,11 +100,17 @@ void calculateStepperSpeeds(){
 void actuateSteppers(){
 //  Serial.print("intensity here:");Serial.print(robotVector.get_intensity()); Serial.print(" Bspeed:");Serial.println(Bspeed);
 
- if(motorsEnabled){
-  stepperA.runSpeed();  //use run?
-  stepperB.runSpeed();
-  stepperC.runSpeed();
-  stepperD.runSpeed();
-  } 
+if(motorsEnabled){
+  digitalWrite(52, HIGH); //enabling motors
+
+  
+  stepperA.runSpeed();  //use runSpeed?
+//  stepperB.runSpeed();
+//  stepperC.runSpeed();
+//  stepperD.runSpeed();
+}else{
+ digitalWrite(52, LOW);
+}
+
 
 }

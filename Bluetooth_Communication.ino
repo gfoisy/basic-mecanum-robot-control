@@ -16,13 +16,11 @@ char command, previousCommand;
 void interperetBluetooth(){
 //read the serial for letters and sort into a unit vector
 //
-//read the serial for speed and scale it as intensity from 0 to 1
-
 //return the direction vector and scaled intensity
 
   command = Serial1.read();
-//  Serial.print("command:");Serial.println(command);
-  //if I create an analogue remote or app, this switch table can go away
+  Serial.print("command:");Serial.println(command);
+  //if I create an analog remote or app, this switch table can go away
   switch(command){ 
       case 'F':  //Forward
         robotVector.set_velocityAngle(0); 
@@ -77,11 +75,12 @@ void interperetBluetooth(){
         }    
      } //end of switch
 
+
      motorsEnabled=true;
      
-//     if(command=='S'||command=='D'){
-//      motorsEnabled=false;
-//     }
+     if(command=='S'||command=='D'){
+      motorsEnabled=false;
+     }
     
     
 }

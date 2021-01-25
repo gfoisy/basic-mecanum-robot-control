@@ -4,8 +4,8 @@
 #define pi 3.14159
 
 float time1, time2;
+int stepperStepsPerQuery;
 bool motorsEnabled;
-
 
 // Battery monitor
    void battery_setup();
