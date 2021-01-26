@@ -19,7 +19,8 @@ bool motorsEnabled;
    void motorSetup();
    void calculateUpcomingSpeeds();
    void engageMotion();
-   void actuateSteppers(int rampFactor);
+   void setTheSpeed(int rampFactor);
+   void actuateSteppers();
 
 
 // debug
@@ -44,6 +45,6 @@ class directionVector{
   private:  
    float _velocityAngle=0;  //=0? should set default values here or somewhere else?
    float _rotationAngle=0;
-   float _intensity=0;
+   float _intensity=0.5;
    
  };

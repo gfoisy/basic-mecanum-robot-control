@@ -9,7 +9,7 @@ void setup() {
   bluetoothSetup();
   motorSetup();
   time2=millis();
-  stepperStepsPerQuery=200;
+  stepperStepsPerQuery=100;
   i=0;
 }
 
@@ -18,12 +18,12 @@ void setup() {
 
 void loop() {
 
-if (Serial1.available()>0)
+
+  
+if (Serial1.available()>0)// 
   {
   interperetBluetooth();     //takes the bluetooth chars and maps them to a unit velocity vector and intensity in class directionVector
   }   
-//else //--maybe decelerate or something if disconnected.
-
 
 //bluetoothDebug();
 

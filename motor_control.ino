@@ -42,14 +42,7 @@ int rampFactor;
    AccelStepper stepper2( AccelStepper::DRIVER, step2, dir2);
    AccelStepper stepper3( AccelStepper::DRIVER, step3, dir3);
  
-   float maxSpeed=3000;
-
-// AccelStepper stepper0(4, in1A, in2A, in3A, in4A);  //4 or FULL4WIRE?
-// AccelStepper stepper0(AccelStepper::FULL4WIRE, in1A, in2A, in3A, in4A);
-// AccelStepper stepper1(AccelStepper::FULL4WIRE, in1B, in2B, in3B, in4B);
-// AccelStepper stepper2(AccelStepper::FULL4WIRE, in1C, in2C, in3C, in4C);
-// AccelStepper stepper3(AccelStepper::FULL4WIRE, in1D, in2D, in3D, in4D);
-
+   float maxSpeed=2000;
   
 /////////////////////////////////////////////////////////////////
 void motorSetup(){ 
@@ -75,7 +68,6 @@ void motorSetup(){
 void calculateUpcomingSpeeds(){
   //take velocityVector and intensity and calculates speeds and directions for the motors
   //can use trig values, Apparently they are in a lookup table written in machine code, should be plenty fast
-
   upcomingSpeed[0]=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.25*pi)+robotVector.get_rotationAngle());  //calculates a speed for each stepper based on the limit set by max speed*intensity. The remainder of the equaition calculates the stepper power to achieve robot's desired direction and rotation
   upcomingSpeed[1]=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.75*pi)-robotVector.get_rotationAngle());   //alternating wheels match speed and rotation when the robot is translating and not rotating
   upcomingSpeed[2]=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.75*pi)+robotVector.get_rotationAngle());  //the rotation angle will adjust motor output so that rotation and translation should happen at the same time,
@@ -83,57 +75,80 @@ void calculateUpcomingSpeeds(){
 
 }
 
-//take upcoming speeds at the target. use previous as current. 
-//divide them into 3 groups 1, 3, 5, then max. and actuate the motors at each of those groups
-
 
 /*
- * engageMotion() ensures that there is a nonlinear acceleration when steppers change speeds or accelerate
- * stepperStepsPerQuery must be more than _25_ per loop, or else the ramping will not be complete
+ * engageMotion() ensures that there is  acceleration when steppers change speeds or accelerate
+ * stepperStepsPerQuery must be more than _15_ per loop, or else the ramping will not be complete
  */
  
 void engageMotion(){
-  //rampDist=upcoming-past
-  //stage1, if i<10, run motors at 1/10xrampdist 
+ 
  if(motorsEnabled)
  {
     digitalWrite(52, HIGH); //enabling motors  
-
     for(int j=0; j<4;j++)
     {
       rampDist[j]=upcomingSpeed[j]-pastSpeed[j];
     };
 
-    
+
     for(int i=0;i<stepperStepsPerQuery;i++)
     { 
       if(i<10)                    //ramp stage 1
-      {
-        rampFactor=10;   // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
+      { 
+        if(i==0){setTheSpeed(10);}   // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
+        actuateSteppers();
       }
-      else if(10<=i&&i<20)        //ramp stage 2
+      else if(10<=i&&i<25)        //ramp stage 2
       {
-        rampFactor=5;
+        if(i==7){setTheSpeed(5);}  
+        actuateSteppers();
       }
-      else if(20<=i&&i<30)        //ramp stage 3
+      else if(25<=i&&i<50)        //ramp stage 3
       {
-        rampFactor=3;
+        if(i==15){setTheSpeed(2);}  
+        actuateSteppers();
       }
       else                        //run at full speed
       {
-        rampFactor=1;           
+        if(i==50){setTheSpeed(1);}  
+        actuateSteppers();           
       }
+      
+//almost works
+//if(i<5)                    //ramp stage 1
+//      { 
+//        if(i==0){setTheSpeed(10);}   // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
+//        actuateSteppers();
+//      }
+//      else if(5<=i&&i<10)        //ramp stage 2
+//      {
+//        if(i==5){setTheSpeed(8);}  
+//        actuateSteppers();
+//      }
+//      else if(10<=i&&i<15)        //ramp stage 3
+//      {
+//        if(i==10){setTheSpeed(5);}  
+//        actuateSteppers();
+//      }
+//      else                        //run at full speed
+//      {
+//        if(i==15){setTheSpeed(1);}  
+//        actuateSteppers();           
+//      }
+
 
     };
 
-     for(int j=0; j<4;j++) //setting previous speed to 0
+    for(int j=0; j<4;j++) //updating previous speed 
     {
-      pastSpeed[j]=0;
+      pastSpeed[j]=upcomingSpeed[j];
     };
     
  }
  else
  {
+//   Serial.print("zeroed");
    digitalWrite(52, LOW);
    
    for(int j=0; j<4;j++) //setting previous speed to 0
@@ -143,19 +158,20 @@ void engageMotion(){
     
  }
 
-   for(int j=0; j<4;j++) //updating previous speed to 0
-    {
-      pastSpeed[j]=upcomingSpeed[j];
-    };
+ 
 
  }
 
-void actuateSteppers(int rampFactor){
-//  Serial.print("intensity here:");Serial.print(robotVector.get_intensity()); Serial.print(" upcomingSpeed[1]:");Serial.println(upcomingSpeed[1]);
+void setTheSpeed(int rampFactor){
   stepper0.setSpeed(pastSpeed[0]+rampDist[0]/rampFactor);  
   stepper1.setSpeed(pastSpeed[1]+rampDist[1]/rampFactor);
   stepper2.setSpeed(pastSpeed[2]+rampDist[2]/rampFactor);
   stepper3.setSpeed(pastSpeed[3]+rampDist[3]/rampFactor);
+
+}
+
+void actuateSteppers(){ // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
+//  Serial.print("upcoming  "); Serial.print(upcomingSpeed[0]);Serial.print("past  ");Serial.print(pastSpeed[0]);(Serial.println(rampDist[0]/rampFactor));//Serial.print(robotVector.get_intensity()); Serial.print(" upcomingSpeed[1]:");Serial.println(upcomingSpeed[1]);
 
   stepper0.runSpeed();  //use runSpeed?
 //  stepper1.runSpeed();

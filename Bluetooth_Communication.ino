@@ -17,9 +17,13 @@ void interperetBluetooth(){
 //read the serial for letters and sort into a unit vector
 //
 //return the direction vector and scaled intensity
-
+//  Serial1.availableForWrite();
+//  Serial.print(Serial1.availableForWrite());
+  
   command = Serial1.read();
+  motorsEnabled=true;
 //  Serial.print("command:");Serial.println(command);
+
   //if I create an analog remote or app, this switch table can go away
   switch(command){ 
       case 'F':  //Forward
@@ -71,12 +75,13 @@ void interperetBluetooth(){
              //Subtracting 48 changes the range from 48-57 to 0-9.
              //dividing by 9changes the range to 0-1.
              robotVector.set_intensity(((float)command - 48)/9);  
+             motorsEnabled=false;
             }
         }    
      } //end of switch
 
 
-     motorsEnabled=true;
+
      
      if(command=='S'||command=='D'){
       motorsEnabled=false;
