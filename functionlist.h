@@ -8,7 +8,8 @@ int stepperStepsPerQuery, i;
 bool motorsEnabled;
 
 // Battery monitor
-   void battery_setup();
+   void Battery_setup();
+   void checkBattery();
 
 // Bluetooth_Communication
    void bluetoothSetup();

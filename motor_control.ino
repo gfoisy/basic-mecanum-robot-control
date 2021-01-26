@@ -18,17 +18,17 @@ int rampFactor;
 // Wheel diameter = 120mm
 
 // setting up pins for the steppers
-#define step0 22
-#define dir0 23
+#define step0 23
+#define dir0 22
 
-#define step1 24
-#define dir1 25
+#define step1 25
+#define dir1 24
 
-#define step2 26
-#define dir2 27
+#define step2 27
+#define dir2 26
 
-#define step3 28
-#define dir3 29
+#define step3 29
+#define dir3 28
 
 #define power 52;
 
@@ -174,8 +174,8 @@ void actuateSteppers(){ // the difference in speed is divided by this factor bef
 //  Serial.print("upcoming  "); Serial.print(upcomingSpeed[0]);Serial.print("past  ");Serial.print(pastSpeed[0]);(Serial.println(rampDist[0]/rampFactor));//Serial.print(robotVector.get_intensity()); Serial.print(" upcomingSpeed[1]:");Serial.println(upcomingSpeed[1]);
 
   stepper0.runSpeed();  //use runSpeed?
-//  stepper1.runSpeed();
-//  stepper2.runSpeed();
-//  stepper3.runSpeed();
+  stepper1.runSpeed();
+  stepper2.runSpeed();
+  stepper3.runSpeed();
 
 }

@@ -5,12 +5,12 @@ directionVector robotVector;
 
 
 void setup() {
-  battery_setup();
+  Battery_setup();
   bluetoothSetup();
   motorSetup();
   time2=millis();
   stepperStepsPerQuery=100;
-  i=0;
+//  i=0;
 }
 
 
@@ -31,21 +31,13 @@ calculateUpcomingSpeeds();    //With the robot velocity's direction, rotation, a
 
 engageMotion();
 
-//i++;
-//time1=micros();
-//if(i==5000){
-//  Serial.println(time2-time1);
-//  i=0;
-//}
 
-//time2=time1;
-
-
-     
-//if( time1>(time2+5000)){      //check the battery occationally
-//
-//   time2=time1;
-//}
+time1=millis();
+  
+if( time1>(time2+30)){      //check the battery occationally
+   checkBattery();
+   time2=time1;
+}
 
 }
  
