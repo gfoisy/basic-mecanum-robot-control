@@ -2,23 +2,17 @@
 
 directionVector robotVector;
 
-int i=0;
+
 
 void setup() {
   battery_setup();
   bluetoothSetup();
   motorSetup();
   time2=millis();
+  stepperStepsPerQuery=200;
+  i=0;
 }
 
-
-/*
- * make a stopping function that isn't setting intensity to zero
- * double check speed numbers agains themselves for symmetry
- * 
- * battery meter
- * 
- */
 
 
 
@@ -31,12 +25,12 @@ if (Serial1.available()>0)
 //else //--maybe decelerate or something if disconnected.
 
 
-bluetoothDebug();
+//bluetoothDebug();
 
-calculateStepperSpeeds();    //With the robot velocity's direction, rotation, and intensity , calculate and set the direction and speed for the stepper motors//
+calculateUpcomingSpeeds();    //With the robot velocity's direction, rotation, and intensity , calculate and set the direction and speed for the stepper motors//
 
-actuateSteppers();           //Jump through hoops here to set up the steppers to execute properly with the timing and stuff. have calculateSpeeds be more pure
-                             //send the steppers their commands
+engageMotion();
+
 //i++;
 //time1=micros();
 //if(i==5000){
@@ -53,13 +47,5 @@ actuateSteppers();           //Jump through hoops here to set up the steppers to
 //   time2=time1;
 //}
 
-
-
-//Serial.print("velocity angle:"); Serial.print(robotVector.get_velocityAngle());
-//Serial.print("rotation angle:"); Serial.print(robotVector.get_rotationAngle()); 
-//Serial.print("intensity:"); Serial.println(robotVector.get_intensity()); 
-
-
-//bluetoothDebug();
 }
  

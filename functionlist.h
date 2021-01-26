@@ -4,8 +4,8 @@
 #define pi 3.14159
 
 float time1, time2;
+int stepperStepsPerQuery, i;
 bool motorsEnabled;
-
 
 // Battery monitor
    void battery_setup();
@@ -17,8 +17,9 @@ bool motorsEnabled;
 
 // Motor_control
    void motorSetup();
-   void calculateStepperSpeeds();
-   void actuateSteppers();
+   void calculateUpcomingSpeeds();
+   void engageMotion();
+   void actuateSteppers(int rampFactor);
 
 
 // debug
@@ -46,16 +47,3 @@ class directionVector{
    float _intensity=0;
    
  };
-
-
-
-// void set_velocityAngle(float angle);{
-//     _velocityAngle=angle;
-// }
-
-// void set_rotationAngle(float angle);{
-//     _rotationAngle=angle;
-// }
-// void directionVector::set_intensity(float val){
-//     intensity=val;
-// }
