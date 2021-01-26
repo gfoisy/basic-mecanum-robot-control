@@ -9,7 +9,7 @@ void setup() {
   bluetoothSetup();
   motorSetup();
   time2=millis();
-  stepperStepsPerQuery=100;
+  stepperStepsPerQuery=200;
 //  i=0;
 }
 

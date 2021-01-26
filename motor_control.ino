@@ -36,13 +36,14 @@ int rampFactor;
 
 
 //constructing the stepper objects
-
    AccelStepper stepper0( AccelStepper::DRIVER, step0, dir0);
    AccelStepper stepper1( AccelStepper::DRIVER, step1, dir1);
    AccelStepper stepper2( AccelStepper::DRIVER, step2, dir2);
    AccelStepper stepper3( AccelStepper::DRIVER, step3, dir3);
+
+
  
-   float maxSpeed=2000;
+   float maxSpeed=1500;
   
 /////////////////////////////////////////////////////////////////
 void motorSetup(){ 
@@ -52,6 +53,9 @@ void motorSetup(){
   stepper1.setMaxSpeed(maxSpeed);  //in steps per seccond
   stepper2.setMaxSpeed(maxSpeed);  //in steps per seccond
   stepper3.setMaxSpeed(maxSpeed);  //in steps per seccond
+
+    stepper0.setPinsInverted(true,false,false);
+    stepper1.setPinsInverted(true,false,false);
 
   for(int j=0;j<4;j++){
    pastSpeed[j]=0;
@@ -94,49 +98,27 @@ void engageMotion(){
 
     for(int i=0;i<stepperStepsPerQuery;i++)
     { 
-      if(i<10)                    //ramp stage 1
+      if(i<20)                    //ramp stage 1
       { 
-        if(i==0){setTheSpeed(10);}   // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
+        if(i==0){setTheSpeed(5);}   // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
         actuateSteppers();
       }
-      else if(10<=i&&i<25)        //ramp stage 2
+      else if(20<=i&&i<65)        //ramp stage 2
       {
-        if(i==7){setTheSpeed(5);}  
+        if(i==20){setTheSpeed(2);}  
         actuateSteppers();
       }
-      else if(25<=i&&i<50)        //ramp stage 3
+      else if(65<=i&&i<150)        //ramp stage 3
       {
-        if(i==15){setTheSpeed(2);}  
+        if(i==65){setTheSpeed(1.5);}  
         actuateSteppers();
       }
       else                        //run at full speed
       {
-        if(i==50){setTheSpeed(1);}  
+        if(i==150){setTheSpeed(1);}  
         actuateSteppers();           
       }
-      
-//almost works
-//if(i<5)                    //ramp stage 1
-//      { 
-//        if(i==0){setTheSpeed(10);}   // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
-//        actuateSteppers();
-//      }
-//      else if(5<=i&&i<10)        //ramp stage 2
-//      {
-//        if(i==5){setTheSpeed(8);}  
-//        actuateSteppers();
-//      }
-//      else if(10<=i&&i<15)        //ramp stage 3
-//      {
-//        if(i==10){setTheSpeed(5);}  
-//        actuateSteppers();
-//      }
-//      else                        //run at full speed
-//      {
-//        if(i==15){setTheSpeed(1);}  
-//        actuateSteppers();           
-//      }
-
+     
 
     };
 
@@ -162,7 +144,7 @@ void engageMotion(){
 
  }
 
-void setTheSpeed(int rampFactor){
+void setTheSpeed(float rampFactor){
   stepper0.setSpeed(pastSpeed[0]+rampDist[0]/rampFactor);  
   stepper1.setSpeed(pastSpeed[1]+rampDist[1]/rampFactor);
   stepper2.setSpeed(pastSpeed[2]+rampDist[2]/rampFactor);

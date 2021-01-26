@@ -20,7 +20,7 @@ bool motorsEnabled;
    void motorSetup();
    void calculateUpcomingSpeeds();
    void engageMotion();
-   void setTheSpeed(int rampFactor);
+   void setTheSpeed(float rampFactor);
    void actuateSteppers();
 
 
