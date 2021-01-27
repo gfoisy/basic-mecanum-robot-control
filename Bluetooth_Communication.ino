@@ -21,8 +21,12 @@ void interperetBluetooth(){
 //  Serial.print(Serial1.availableForWrite());
   
   command = Serial1.read();
+
+  //  Serial.print("command:");
+  //  Serial.println(command);
+ 
+  
   motorsEnabled=true;
-//  Serial.print("command:");Serial.println(command);
 
   //if I create an analog remote or app, this switch table can go away
   switch(command){ 
@@ -39,7 +43,7 @@ void interperetBluetooth(){
         robotVector.set_velocityAngle(.5*pi); 
         break;
       case 'S':  //Stop -- FIRES IF NO INPUT from bluetooth
-                 // used later down
+           motorsEnabled=false;
         break;
       case 'I':  //FR 
         robotVector.set_velocityAngle(.25*pi);
@@ -56,18 +60,26 @@ void interperetBluetooth(){
       case 'D':  //Everything OFF
         robotVector.set_intensity(0.0); 
         robotVector.set_rotationAngle(0);
+        motorsEnabled=false;
         break;     
       case 'W': // rotate left
          robotVector.set_rotationAngle(pi/2);
+         break;
       case 'w': // stop rotating left
           robotVector.set_rotationAngle(0);
-      case 'U': // rotate rigth
+          motorsEnabled=false;
+          break;
+      case 'U': // rotate right
          robotVector.set_rotationAngle(pi/2);
+         break;
       case 'u': // stop rotating right
           robotVector.set_rotationAngle(0);
+          motorsEnabled=false;
+          break;
       default:  //Get velocity
         if(command=='q'){
           robotVector.set_intensity(1.0);  //Full velocity
+          motorsEnabled=false;
         }
         else{
           //Chars '0' - '9' have an integer equivalence of 48 - 57, accordingly.
@@ -80,12 +92,7 @@ void interperetBluetooth(){
         }    
      } //end of switch
 
-
-
-     
-     if(command=='S'||command=='D'){
-      motorsEnabled=false;
-     }
+   
     
     
 }

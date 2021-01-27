@@ -3,18 +3,18 @@
 #include "functionlist.h"
 #include <AccelStepper.h>  //https://www.airspayce.com/mikem/arduino/AccelStepper/
 
-float upcomingSpeed[4], pastSpeed[4], rampDist[4];
-int rampFactor;
+float upcomingSpeed[4], distance[4];
+
 
 //   motorlayout
 //    FRONT
-//   A(0)-----B(1)
-//     |     |
-//     |     |
-//   C(2)-----D(3)
+//    (0)----(1)
+//     |      |
+//     |      |
+//    (2)----(3)
 //     REAR
-// A->B = 270mm (from center plane of wheel)
-// A->C = 200mm (axle to axle)
+// 0->1 = 270mm (from center plane of wheel)
+// 0->2 = 200mm (axle to axle)
 // Wheel diameter = 120mm
 
 // setting up pins for the steppers
@@ -41,26 +41,33 @@ int rampFactor;
    AccelStepper stepper2( AccelStepper::DRIVER, step2, dir2);
    AccelStepper stepper3( AccelStepper::DRIVER, step3, dir3);
 
+   float maxSpeed=500;
+   int accel=3000;
 
- 
-   float maxSpeed=1500;
+
   
 /////////////////////////////////////////////////////////////////
 void motorSetup(){ 
-  pinMode(52, OUTPUT);
+  pinMode(52, OUTPUT);  //THIS PIN NEEDS TO BE SET AT HIGH TO ENABLE THE MOTORS
 
   stepper0.setMaxSpeed(maxSpeed);  //in steps per seccond //"High" steps/second is 2000 to 3000--mecatronics uses 3000 setps per second--NOT RPM, and that requires very fast waveforms and fast magnetic field changes, so the stepper driver AND PROCESSOR SPEED is critical for high speeds. 
   stepper1.setMaxSpeed(maxSpeed);  //in steps per seccond
   stepper2.setMaxSpeed(maxSpeed);  //in steps per seccond
   stepper3.setMaxSpeed(maxSpeed);  //in steps per seccond
 
+  stepper0.setAcceleration(accel);
+  stepper1.setAcceleration(accel);
+  stepper2.setAcceleration(accel);
+  stepper3.setAcceleration(accel);
+  
+  stepper0.setSpeed(0);  
+  stepper1.setSpeed(0);
+  stepper2.setSpeed(0);
+  stepper3.setSpeed(0);
+
     stepper0.setPinsInverted(true,false,false);
     stepper1.setPinsInverted(true,false,false);
 
-  for(int j=0;j<4;j++){
-   pastSpeed[j]=0;
-  }
-    
 }
 
 
@@ -77,12 +84,21 @@ void calculateUpcomingSpeeds(){
   upcomingSpeed[2]=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.75*pi)+robotVector.get_rotationAngle());  //the rotation angle will adjust motor output so that rotation and translation should happen at the same time,
   upcomingSpeed[3]=maxSpeed*robotVector.get_intensity()*cos(robotVector.get_velocityAngle()-(.25*pi)-robotVector.get_rotationAngle());  // while staying below the motor's limits
 
+  stepper0.move(isPos(upcomingSpeed[0])*10000);
+  stepper1.move(isPos(upcomingSpeed[1])*10000);
+  stepper2.move(isPos(upcomingSpeed[2])*10000);
+  stepper3.move(isPos(upcomingSpeed[3])*10000);
+
+  stepper0.setSpeed(upcomingSpeed[0]);  
+  stepper1.setSpeed(upcomingSpeed[1]);
+  stepper2.setSpeed(upcomingSpeed[2]);
+  stepper3.setSpeed(upcomingSpeed[3]);
+
 }
 
 
 /*
- * engageMotion() ensures that there is  acceleration when steppers change speeds or accelerate
- * stepperStepsPerQuery must be more than _15_ per loop, or else the ramping will not be complete
+ * 
  */
  
 void engageMotion(){
@@ -90,74 +106,29 @@ void engageMotion(){
  if(motorsEnabled)
  {
     digitalWrite(52, HIGH); //enabling motors  
-    for(int j=0; j<4;j++)
-    {
-      rampDist[j]=upcomingSpeed[j]-pastSpeed[j];
-    };
-
-
-    for(int i=0;i<stepperStepsPerQuery;i++)
-    { 
-      if(i<20)                    //ramp stage 1
-      { 
-        if(i==0){setTheSpeed(5);}   // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
-        actuateSteppers();
-      }
-      else if(20<=i&&i<65)        //ramp stage 2
-      {
-        if(i==20){setTheSpeed(2);}  
-        actuateSteppers();
-      }
-      else if(65<=i&&i<150)        //ramp stage 3
-      {
-        if(i==65){setTheSpeed(1.5);}  
-        actuateSteppers();
-      }
-      else                        //run at full speed
-      {
-        if(i==150){setTheSpeed(1);}  
-        actuateSteppers();           
-      }
-     
-
-    };
-
-    for(int j=0; j<4;j++) //updating previous speed 
-    {
-      pastSpeed[j]=upcomingSpeed[j];
-    };
-    
+    actuateSteppers();
  }
  else
  {
-//   Serial.print("zeroed");
+//   Serial.print("off");
    digitalWrite(52, LOW);
-   
-   for(int j=0; j<4;j++) //setting previous speed to 0
-    {
-      pastSpeed[j]=0;
-    };
-    
  }
-
- 
 
  }
 
-void setTheSpeed(float rampFactor){
-  stepper0.setSpeed(pastSpeed[0]+rampDist[0]/rampFactor);  
-  stepper1.setSpeed(pastSpeed[1]+rampDist[1]/rampFactor);
-  stepper2.setSpeed(pastSpeed[2]+rampDist[2]/rampFactor);
-  stepper3.setSpeed(pastSpeed[3]+rampDist[3]/rampFactor);
 
+int isPos(float speedIn){
+  if(speedIn>0){return 1;}
+  else if(speedIn<0){return -1;}
+  else{return 0;};
 }
 
 void actuateSteppers(){ // the difference in speed is divided by this factor before added to the previous speed. As this factor shrinks, it will ramp the steppers to the desired speed
 //  Serial.print("upcoming  "); Serial.print(upcomingSpeed[0]);Serial.print("past  ");Serial.print(pastSpeed[0]);(Serial.println(rampDist[0]/rampFactor));//Serial.print(robotVector.get_intensity()); Serial.print(" upcomingSpeed[1]:");Serial.println(upcomingSpeed[1]);
 
-  stepper0.runSpeed();  //use runSpeed?
-  stepper1.runSpeed();
-  stepper2.runSpeed();
-  stepper3.runSpeed();
+  stepper0.run();  //use runSpeed?
+  stepper1.run();
+  stepper2.run();
+  stepper3.run();
 
 }

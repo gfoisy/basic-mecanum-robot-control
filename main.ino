@@ -9,7 +9,7 @@ void setup() {
   bluetoothSetup();
   motorSetup();
   time2=millis();
-  stepperStepsPerQuery=200;
+//  stepperStepsPerQuery=1;
 //  i=0;
 }
 
@@ -29,15 +29,17 @@ if (Serial1.available()>0)//
 
 calculateUpcomingSpeeds();    //With the robot velocity's direction, rotation, and intensity , calculate and set the direction and speed for the stepper motors//
 
-engageMotion();
-
+//for (int i=0; i<stepperStepsPerQuery;i++)
+//  {
+  engageMotion();
+//  };
 
 time1=millis();
   
-if( time1>(time2+30)){      //check the battery occationally
+if( time1>(time2+5000)){      //check the battery occationally
    checkBattery();
    time2=time1;
+   
 }
-
 }
  

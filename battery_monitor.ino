@@ -11,6 +11,8 @@ pinMode(A15, INPUT);
 
   if(voltage<11){
     digitalWrite(53, HIGH);
+  }else if(voltage>11){
+    digitalWrite(53, LOW);
   }
 
    Serial.print("volts");Serial.println(voltage);
