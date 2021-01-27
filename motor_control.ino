@@ -42,7 +42,7 @@ float upcomingSpeed[4], distance[4];
    AccelStepper stepper3( AccelStepper::DRIVER, step3, dir3);
 
    float maxSpeed=500;
-   int accel=3000;
+   int accel=10000; //5000 works
 
 
   
