@@ -55,10 +55,10 @@ void motorSetup(){
   stepper2.setMaxSpeed(maxSpeed);  //in steps per seccond
   stepper3.setMaxSpeed(maxSpeed);  //in steps per seccond
 
-  stepper0.setAcceleration(accel);
-  stepper1.setAcceleration(accel);
-  stepper2.setAcceleration(accel);
-  stepper3.setAcceleration(accel);
+//  stepper0.setAcceleration(accel);
+//  stepper1.setAcceleration(accel);
+//  stepper2.setAcceleration(accel);
+//  stepper3.setAcceleration(accel);
   
   stepper0.setSpeed(0);  
   stepper1.setSpeed(0);

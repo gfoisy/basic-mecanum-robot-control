@@ -70,7 +70,7 @@ void interperetBluetooth(){
           motorsEnabled=false;
           break;
       case 'U': // rotate right
-         robotVector.set_rotationAngle(pi/2);
+         robotVector.set_rotationAngle(-pi/2);
          break;
       case 'u': // stop rotating right
           robotVector.set_rotationAngle(0);
